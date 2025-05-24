@@ -3,12 +3,11 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
-def metropolis_ising(num_steps, size, beta):
+def metropolis_ising_time_series(num_steps, size, beta):
     spins = np.random.choice([-1, 1], size=(size, size))
-    net_spins = np.zeros(num_steps)
+    magnetization = np.zeros(num_steps)
 
-    for step in tqdm(range(num_steps), desc="Running Metropolis"):
-        # Pick a random spin
+    for step in range(num_steps):
         i = np.random.randint(0, size)
         j = np.random.randint(0, size)
 
@@ -17,30 +16,35 @@ def metropolis_ising(num_steps, size, beta):
         dE = 2 * s * neighbors
 
         if dE <= 0 or np.random.rand() < np.exp(-beta * dE):
-            spins[i, j] *= -1  # Accept the flip
+            spins[i, j] *= -1
 
-        net_spins[step] = np.sum(spins)
+        # Store average spin per site
+        magnetization[step] = np.sum(spins) / (size**2)
 
-    return net_spins
+    return magnetization
 
 
-# Run and plot
-betas = np.linspace(0.1, 1.0, 10)
+# Parameters
+betas = np.linspace(0.1,1,5)
 num_steps = 100000
 size = 50
-spins_over_time = np.zeros((len(betas), num_steps))
+magnetization_over_time = []
 
-for idx, beta in enumerate(betas):
-    print(f"Running for beta = {beta:.2f}")
-    spins_over_time[idx] = metropolis_ising(num_steps, size, beta)
+# Run simulation for each beta
+for beta in betas:
+    print(f"Simulating for β = {beta:.2f}")
+    m_time_series = metropolis_ising_time_series(num_steps, size, beta)
+    magnetization_over_time.append(m_time_series)
 
-# Plot
-for i in range(len(betas)):
-    plt.plot(spins_over_time[i] / size**2, label=f"β = {betas[i]:.2f}")
+# Plotting
+plt.figure(figsize=(10, 6))
+for i, beta in enumerate(betas):
+    plt.plot(magnetization_over_time[i], label=f'β = {beta:.2f}')
 
-plt.xlabel("Steps")
-plt.ylabel("Average Spin")
-plt.title("Ising Model Magnetization vs Time")
+plt.xlabel("Algorithm Steps")
+plt.ylabel("Average Spin per Site")
+plt.title("Ising Model Magnetization vs Steps for Different β")
 plt.legend()
-plt.grid()
+plt.grid(True)
+plt.tight_layout()
 plt.show()
