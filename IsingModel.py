@@ -26,6 +26,7 @@ def metropolis_ising_time_series(num_steps, size, beta):
 
 # Parameters
 betas = np.linspace(0.1,1,5)
+#betas = np.array([100]) #Debug
 num_steps = 100000
 size = 50
 magnetization_over_time = []
@@ -43,7 +44,7 @@ for i, beta in enumerate(betas):
 
 plt.xlabel("Algorithm Steps")
 plt.ylabel("Average Spin per Site")
-plt.title("Ising Model Magnetization vs Steps for Different β")
+plt.title("Ising Model Magnetization vs Steps for Different beta")
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
